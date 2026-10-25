@@ -35,7 +35,7 @@ body:
     id: expected
     attributes:
       label: Expected
-      description: The occurrences or behaviour you expected. If you checked python-dateutil, say what it returns.
+      description: The occurrences or behaviour you expected, and the RFC 5545 section it rests on if you know it. What python-dateutil returns is useful too.
     validations:
       required: true
   - type: textarea
