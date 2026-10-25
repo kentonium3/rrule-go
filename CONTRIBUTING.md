@@ -5,8 +5,9 @@ Thanks for helping. This is a maintained fork of teambition/rrule-go.
 ## Reporting a problem
 
 Open an issue using one of the forms. For a bug, give the exact rule and DTSTART, what you expected
-and what you got. If you can, say what python-dateutil returns for the same rule, since this library
-aims to match it.
+and what you got. Behaviour follows [RFC 5545](https://www.rfc-editor.org/rfc/rfc5545), so if you can,
+cite the section your expectation rests on. What python-dateutil returns for the same rule is useful
+too, but where it differs from the RFC, the RFC wins.
 
 Security problems (panics, hangs, runaway resource use) go through private reporting instead. See
 [SECURITY.md](SECURITY.md).

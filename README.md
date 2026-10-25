@@ -2,6 +2,9 @@
 > The original project is no longer maintained. This fork keeps the same module path
 > (`github.com/teambition/rrule-go`), the same API and the same Go 1.16 minimum. It adds fixes for
 > inputs the parser accepts but the iterator could not handle.
+>
+> [RFC 5545](https://www.rfc-editor.org/rfc/rfc5545) is the reference for how rules behave. Where
+> the original code or python-dateutil differs from it, this fork follows the RFC.
 
 ## What this fork fixes (v1.8.3)
 
@@ -38,8 +41,9 @@ Go library for working with recurrence rules for calendar dates.
 [![License](https://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https://github.com/kentonium3/rrule-go/blob/main/LICENSE)
 [![Go Reference](https://pkg.go.dev/badge/github.com/teambition/rrule-go.svg)](https://pkg.go.dev/github.com/teambition/rrule-go)
 
-The rrule module offers a complete implementation of the recurrence rules documented in the [iCalendar
-RFC](http://www.ietf.org/rfc/rfc2445.txt). It is a partial port of the rrule module from the excellent [python-dateutil](http://labix.org/python-dateutil/) library.
+The rrule module implements the recurrence rules of the iCalendar standard,
+[RFC 5545](https://www.rfc-editor.org/rfc/rfc5545). It began as a partial port of the rrule module from
+the excellent [python-dateutil](https://github.com/dateutil/dateutil) library.
 
 ## Demo
 

@@ -1,5 +1,5 @@
 name: Feature request
-description: Suggest a feature, such as a python-dateutil capability this library lacks.
+description: Suggest a feature, such as part of RFC 5545 this library doesn't support yet.
 labels: ["enhancement", "status:triage"]
 body:
   - type: textarea
@@ -13,6 +13,6 @@ body:
     id: proposal
     attributes:
       label: What would help?
-      description: The API or behaviour you'd like. Note any existing python-dateutil equivalent.
+      description: The API or behaviour you'd like. Note the RFC 5545 section, or an existing python-dateutil equivalent.
     validations:
       required: true
