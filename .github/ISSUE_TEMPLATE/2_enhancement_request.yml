@@ -1,0 +1,55 @@
+name: Enhancement request
+description: Propose a new capability or improvement to rrule-go.
+title: "[Enhancement] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please check existing issues and the [roadmap](https://github.com/kentonium3/rrule-go/blob/main/ROADMAP.md).
+        Use Bug report for existing behavior that violates RFC 5545. Useful extensions
+        beyond the RFC are welcome as proposals and are considered separately.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What are you trying to accomplish, and what is difficult today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed capability
+      description: Describe the desired behavior. Include an example API or recurrence if helpful.
+    validations:
+      required: true
+  - type: dropdown
+    id: basis
+    attributes:
+      label: Relationship to RFC 5545
+      options:
+        - RFC 5545 capability
+        - Extension beyond RFC 5545
+        - Not sure or not applicable
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected areas
+      description: Select any that apply, or leave unset if unsure. Maintainers confirm labels during triage.
+      multiple: true
+      options:
+        - Parsing and serialization
+        - Recurrence generation
+        - Time zones and DST
+        - Recurrence sets (RRuleSet, RDATE, EXDATE)
+        - Documentation and examples
+        - CI and tooling
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and workarounds
+      description: What have you tried? Links to python-dateutil or other implementations are useful prior art, rather than the specification for RFC behavior.
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility and additional context
+      description: Would the proposal change existing calls or results? Describe affected users or integrations if known. Maintainers determine priority and release scope.

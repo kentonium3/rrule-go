@@ -1,0 +1,85 @@
+name: Bug report
+description: Report incorrect behavior in rrule-go, including documentation errors.
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For crashes, hangs, resource exhaustion, or other security concerns, use
+        [private vulnerability reporting](https://github.com/kentonium3/rrule-go/security/advisories/new).
+        See the [security policy](https://github.com/kentonium3/rrule-go/blob/main/SECURITY.md).
+        Report ordinary incorrect occurrences here. Please search existing issues first.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the incorrect behavior or documentation error.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Library version and import path
+      description: Include the version or commit and the module/import path. For documentation, give the page URL instead.
+      placeholder: github.com/kentonium3/rrule-go at v1.x.x
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Go version and operating system
+      description: Include architecture if relevant. For documentation-only reports, enter N/A.
+      placeholder: go version; OS and architecture
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Include a small Go example or the exact RRULE and DTSTART. Include TZID/time zone and RDATE/EXDATE when relevant. For documentation, identify the incorrect text.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: Include expected occurrences with offsets, or the expected correction. Cite RFC 5545 if known; a citation is not required.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include actual occurrences with offsets, output, or error text. Remove sensitive information.
+      render: text
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected areas
+      description: Select any that apply, or leave unset if unsure. Maintainers confirm labels during triage.
+      multiple: true
+      options:
+        - Parsing and serialization
+        - Recurrence generation
+        - Time zones and DST
+        - Recurrence sets (RRuleSet, RDATE, EXDATE)
+        - Documentation and examples
+        - CI and tooling
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Observed impact
+      description: Select any that apply. Use private reporting for crashes, hangs, or resource exhaustion. Maintainers determine priority.
+      multiple: true
+      options:
+        - Incorrect occurrences or serialized recurrence values
+        - Compatibility regression
+        - Slow but terminating operation
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context or workaround
+      description: How does this affect your use? Is there a workaround? Links and comparisons are welcome; RFC 5545 governs standard behavior.

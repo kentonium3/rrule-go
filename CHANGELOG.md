@@ -9,6 +9,9 @@ are not yet tagged. Future intentions belong in [ROADMAP.md](ROADMAP.md).
 
 ### Added
 
+- **Issue submission forms separate bug reports, enhancement requests, and questions.**
+  Forms collect recurrence examples and optional area/impact information without
+  adding kind or priority labels. Security reports use the private reporting channel.
 - **Project priorities and ways to help are documented.** The [roadmap](ROADMAP.md)
   separates RFC 5545 behavior from scheduling extensions. The README identifies
   the maintainer and welcomes co-maintainer and issue-triage contributions
