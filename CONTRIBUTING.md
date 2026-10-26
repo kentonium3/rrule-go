@@ -41,6 +41,11 @@ instructions. Link public issues or pull requests and credit retained contributi
 Routine internal changes need no entry. Keep future plans in the roadmap and
 private security details in private reporting until disclosure is appropriate.
 
+Check the structure locally with `go run ./tools/changelog check`. CI runs the same
+check. It validates headings, category order, duplicate versions, real dates,
+populated release sections, and conflict markers; editorial accuracy still needs
+review. An empty Unreleased section is allowed, but empty category headings are not.
+
 ### Preparing a release
 
 Review the changes included in the release, move the relevant Unreleased entries
@@ -49,9 +54,24 @@ Use the actual release date and exact version of the intended Git tag (for
 example, `v1.8.4` corresponds to `[1.8.4]`). The `go 1.16` directive in `go.mod`
 is the language compatibility floor, not the release version.
 
+Before tagging, validate the exact intended version and extract its notes:
+
+```bash
+go run ./tools/changelog check -version v1.8.4
+go run ./tools/changelog extract -version v1.8.4
+```
+
+Replace `v1.8.4` with the release being prepared; prereleases use Go/SemVer spelling
+such as `v1.9.0-rc.1`. Both commands fail for missing or unfinalized releases. The
+extract command writes only that section's body to stdout, ready for a GitHub
+release's notes. Notes should use inline links; document-level comparison link
+definitions are omitted. Use `-file PATH` to read a different changelog.
+
 Use that version section as the GitHub release notes. Review it alongside the
 code and migration guidance, and pass the existing code gates before publishing.
 Released sections are historical records: correct factual errors when necessary,
 but do not restyle them or add changes that were not in that release.
+The tag CI check verifies the matching notes; it does not create a release or
+replace the pre-tag checks.
 
 By contributing you agree that your work is released under the MIT license in [LICENSE](LICENSE).

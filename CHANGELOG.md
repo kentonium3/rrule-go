@@ -14,6 +14,9 @@ are not yet tagged. Future intentions belong in [ROADMAP.md](ROADMAP.md).
   the maintainer and welcomes co-maintainer and issue-triage contributions
   ([#11](https://github.com/kentonium3/rrule-go/pull/11)).
 - **A changelog records this fork's release history and unreleased changes.**
+- **Maintainers can validate the changelog and extract finalized release notes**
+  with `go run ./tools/changelog`. CI checks the format on pull requests and main;
+  version tags also require matching finalized notes.
 
 ### Changed
 
