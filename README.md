@@ -19,6 +19,30 @@
 Rules that worked before produce the same occurrences. The fixes come with regression tests and a
 fuzz test.
 
+## Roadmap
+
+See [ROADMAP.md](ROADMAP.md) for project priorities, sequencing, and the distinction
+between RFC 5545 behavior and useful scheduling extensions.
+
+## Maintainer and help wanted
+
+This fork is maintained by [Kent Gale (@kentonium3)](https://github.com/kentonium3).
+
+**Co-maintainer wanted.** Kent is looking for an experienced Go developer to help
+share ongoing maintenance: reviewing changes, investigating bugs, improving tests,
+and shaping releases. Experience with recurrence rules, calendar standards, or
+timezones would be especially useful.
+
+**Issue-triage contributors are welcome, too.** If a full co-maintainer role is
+more than you want to take on, help reproducing reports, reducing test cases,
+identifying duplicates, clarifying expected behavior, and proposing labels or
+milestones would be valuable. This can be a smaller, focused contribution;
+responsibilities and repository access can be agreed individually.
+
+To express interest in either role, [open an issue](https://github.com/kentonium3/rrule-go/issues/new)
+with a short introduction, your relevant experience, and the kind of help you
+would like to offer. Small contributions are welcome.
+
 ## Using it
 
 Keep importing `github.com/teambition/rrule-go` and point the module at this fork:
