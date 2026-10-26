@@ -1,0 +1,41 @@
+name: Question
+description: Ask about using rrule-go or understanding its behavior.
+title: "[Question] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ask usage and documentation questions here. If you already have a reproduction
+        of incorrect behavior, use Bug report instead. Please keep credentials and
+        other sensitive information out of your example.
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+      description: What are you trying to understand or accomplish?
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Library and Go versions
+      description: Include the module/import path and versions if relevant.
+  - type: textarea
+    id: example
+    attributes:
+      label: Example and what you have tried
+      description: Include code, RRULE/DTSTART, time zone, or documentation links when relevant.
+      render: text
+  - type: dropdown
+    id: area
+    attributes:
+      label: Related areas
+      description: Select any that apply, or leave unset if unsure. Maintainers confirm labels during triage.
+      multiple: true
+      options:
+        - Parsing and serialization
+        - Recurrence generation
+        - Time zones and DST
+        - Recurrence sets (RRuleSet, RDATE, EXDATE)
+        - Documentation and examples
+        - CI and tooling
