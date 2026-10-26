@@ -19,6 +19,8 @@
 Rules that worked before produce the same occurrences. The fixes come with regression tests and a
 fuzz test.
 
+See [CHANGELOG.md](CHANGELOG.md) for released and unreleased changes.
+
 ## Roadmap
 
 See [ROADMAP.md](ROADMAP.md) for project priorities, sequencing, and the distinction

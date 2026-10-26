@@ -28,4 +28,30 @@ Security problems (panics, hangs, runaway resource use) go through private repor
   `fix: stop BYSETPOS from skipping the last period`.
 - Open pull requests against the `main` branch.
 
+## Changelog
+
+Include a consumer-focused entry in [CHANGELOG.md](CHANGELOG.md) for user-facing
+changes, or explain in the pull request why no entry is needed. Add it under
+`## [Unreleased]`, using only populated categories in this order: Breaking,
+Upgrade Notes, Added, Changed, Fixed, Deprecated, Removed, Security.
+
+Start with a short bold headline describing the effect. Explain the previous and
+new behavior when that helps users; breaking changes must include migration
+instructions. Link public issues or pull requests and credit retained contributions.
+Routine internal changes need no entry. Keep future plans in the roadmap and
+private security details in private reporting until disclosure is appropriate.
+
+### Preparing a release
+
+Review the changes included in the release, move the relevant Unreleased entries
+into `## [X.Y.Z] - YYYY-MM-DD`, and leave `## [Unreleased]` for subsequent work.
+Use the actual release date and exact version of the intended Git tag (for
+example, `v1.8.4` corresponds to `[1.8.4]`). The `go 1.16` directive in `go.mod`
+is the language compatibility floor, not the release version.
+
+Use that version section as the GitHub release notes. Review it alongside the
+code and migration guidance, and pass the existing code gates before publishing.
+Released sections are historical records: correct factual errors when necessary,
+but do not restyle them or add changes that were not in that release.
+
 By contributing you agree that your work is released under the MIT license in [LICENSE](LICENSE).
