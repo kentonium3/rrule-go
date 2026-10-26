@@ -1,0 +1,28 @@
+name: Changelog
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Validate changelog
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.16.x'
+      - run: go test ./tools/changelog
+      - run: go run ./tools/changelog check
+      - name: Check finalized notes for a version tag
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: go run ./tools/changelog check -version "$RELEASE_TAG"
