@@ -108,6 +108,7 @@ type ROption struct {
 	Byminute   []int
 	Bysecond   []int
 	Byeaster   []int
+	parse      *parseMetadata
 }
 
 // RRule offers a small, complete, and very fast, implementation of the recurrence rules
@@ -117,6 +118,7 @@ type RRule struct {
 	Options                 ROption
 	freq                    Frequency
 	dtstart                 time.Time
+	anchor                  civilFields
 	interval                int
 	wkst                    int
 	count                   int
@@ -173,6 +175,10 @@ func buildRRule(arg ROption) RRule {
 	}
 	arg.Dtstart = arg.Dtstart.Truncate(time.Second)
 	r.dtstart = arg.Dtstart
+	r.anchor = civilFromTime(r.dtstart)
+	if parsed := arg.parsedStart(); parsed != nil {
+		r.anchor = parsed.nominal
+	}
 
 	// UNTIL
 	if arg.Until.IsZero() {
@@ -193,13 +199,13 @@ func buildRRule(arg ROption) RRule {
 		len(arg.Byeaster) == 0 {
 		if r.freq == YEARLY {
 			if len(arg.Bymonth) == 0 {
-				arg.Bymonth = []int{int(r.dtstart.Month())}
+				arg.Bymonth = []int{int(r.anchor.month)}
 			}
-			arg.Bymonthday = []int{r.dtstart.Day()}
+			arg.Bymonthday = []int{r.anchor.day}
 		} else if r.freq == MONTHLY {
-			arg.Bymonthday = []int{r.dtstart.Day()}
+			arg.Bymonthday = []int{r.anchor.day}
 		} else if r.freq == WEEKLY {
-			arg.Byweekday = []Weekday{{weekday: toPyWeekday(r.dtstart.Weekday())}}
+			arg.Byweekday = []Weekday{{weekday: toPyWeekday(r.anchor.utc().Weekday())}}
 		}
 	}
 	r.bymonth = arg.Bymonth
@@ -222,21 +228,21 @@ func buildRRule(arg ROption) RRule {
 	}
 	if len(arg.Byhour) == 0 {
 		if r.freq < HOURLY {
-			r.byhour = []int{r.dtstart.Hour()}
+			r.byhour = []int{r.anchor.hour}
 		}
 	} else {
 		r.byhour = arg.Byhour
 	}
 	if len(arg.Byminute) == 0 {
 		if r.freq < MINUTELY {
-			r.byminute = []int{r.dtstart.Minute()}
+			r.byminute = []int{r.anchor.minute}
 		}
 	} else {
 		r.byminute = arg.Byminute
 	}
 	if len(arg.Bysecond) == 0 {
 		if r.freq < SECONDLY {
-			r.bysecond = []int{r.dtstart.Second()}
+			r.bysecond = []int{r.anchor.second}
 		}
 	} else {
 		r.bysecond = arg.Bysecond
@@ -250,7 +256,7 @@ func buildRRule(arg ROption) RRule {
 		for _, hour := range r.byhour {
 			for _, minute := range r.byminute {
 				for _, second := range r.bysecond {
-					r.timeset = append(r.timeset, time.Date(1, 1, 1, hour, minute, second, 0, r.dtstart.Location()))
+					r.timeset = append(r.timeset, time.Date(1, 1, 1, hour, minute, second, 0, time.UTC))
 				}
 			}
 		}
@@ -559,19 +565,19 @@ func (info *iterInfo) fillTimeSet(set *[]time.Time, freq Frequency, hour, minute
 		prepareTimeSet(set, len(info.rrule.byminute)*len(info.rrule.bysecond))
 		for _, minute := range info.rrule.byminute {
 			for _, second := range info.rrule.bysecond {
-				*set = append(*set, time.Date(1, 1, 1, hour, minute, second, 0, info.rrule.dtstart.Location()))
+				*set = append(*set, time.Date(1, 1, 1, hour, minute, second, 0, time.UTC))
 			}
 		}
 		sort.Sort(timeSlice(*set))
 	case MINUTELY:
 		prepareTimeSet(set, len(info.rrule.bysecond))
 		for _, second := range info.rrule.bysecond {
-			*set = append(*set, time.Date(1, 1, 1, hour, minute, second, 0, info.rrule.dtstart.Location()))
+			*set = append(*set, time.Date(1, 1, 1, hour, minute, second, 0, time.UTC))
 		}
 		sort.Sort(timeSlice(*set))
 	case SECONDLY:
 		prepareTimeSet(set, 1)
-		*set = append(*set, time.Date(1, 1, 1, hour, minute, second, 0, info.rrule.dtstart.Location()))
+		*set = append(*set, time.Date(1, 1, 1, hour, minute, second, 0, time.UTC))
 	default:
 		prepareTimeSet(set, 0)
 	}
@@ -602,6 +608,8 @@ type rIterator struct {
 	remain   reusingRemainSlice
 	finished bool
 	dayset   []optInt
+	last     time.Time
+	profile  civilDay
 }
 
 func (iterator *rIterator) generate() {
@@ -658,53 +666,59 @@ func (iterator *rIterator) generate() {
 			}
 		}
 
-		// Output results
+		// Filter civil gaps before positions/count. A day profile is reused for
+		// subdaily periods, and BYSETPOS selects ranks without expanding the
+		// day-timeset Cartesian product.
 		if len(r.bysetpos) != 0 && len(iterator.timeset) != 0 {
-			var poslist []time.Time
-			for _, pos := range r.bysetpos {
-				var daypos, timepos int
-				if pos < 0 {
-					daypos, timepos = divmod(pos, len(iterator.timeset))
-				} else {
-					daypos, timepos = divmod(pos-1, len(iterator.timeset))
-				}
-				var temp []int
-				for _, day := range dayset {
-					if day.Defined {
-						temp = append(temp, day.Int)
-					}
-				}
-				i, err := pySubscript(temp, daypos)
-				if err != nil {
+			var days []civilDayRanks
+			total := 0
+			regular := true
+			anchorAlreadyPresent := iterator.anchorCollision(dayset)
+			for _, day := range dayset {
+				if !day.Defined {
 					continue
 				}
-				timeTemp := iterator.timeset[timepos]
-				dateYear, dateMonth, dateDay := iterator.ii.firstyday.AddDate(0, 0, i).Date()
-				tempHour, tempMinute, tempSecond := timeTemp.Clock()
-				res := time.Date(dateYear, dateMonth, dateDay,
-					tempHour, tempMinute, tempSecond,
-					timeTemp.Nanosecond(), timeTemp.Location())
-				if !timeContains(poslist, res) {
-					poslist = append(poslist, res)
+				p := iterator.civilDay(day.Int)
+				ranks := r.dayRanks(p, iterator.timeset, anchorAlreadyPresent)
+				days = append(days, ranks)
+				regular = regular && len(ranks.holes) == 0
+				total += ranks.count
+			}
+			var selected []time.Time
+			for _, pos := range r.bysetpos {
+				rank := pos - 1
+				if pos < 0 {
+					rank = total + pos
+				}
+				if rank < 0 || rank >= total {
+					continue
+				}
+				if regular {
+					d := days[rank/len(iterator.timeset)]
+					clock := nominalClock(iterator.timeset[rank%len(iterator.timeset)])
+					res, ok := r.civilCandidate(d.profile, clock)
+					if ok && !timeContains(selected, res) {
+						selected = append(selected, res)
+					}
+				} else {
+					for _, d := range days {
+						if rank >= d.count {
+							rank -= d.count
+							continue
+						}
+						index := d.selectIndex(rank)
+						res, ok := r.civilCandidate(d.profile, nominalClock(iterator.timeset[index]))
+						if ok && !timeContains(selected, res) {
+							selected = append(selected, res)
+						}
+						break
+					}
 				}
 			}
-			sort.Sort(timeSlice(poslist))
-			for _, res := range poslist {
-				if !r.until.IsZero() && res.After(r.until) {
-					r.len = iterator.total
-					iterator.finished = true
+			sort.Sort(timeSlice(selected))
+			for _, res := range selected {
+				if iterator.emit(res) {
 					return
-				} else if !res.Before(r.dtstart) {
-					iterator.total++
-					iterator.remain.Append(res)
-					if iterator.count != 0 {
-						iterator.count--
-						if iterator.count == 0 {
-							r.len = iterator.total
-							iterator.finished = true
-							return
-						}
-					}
 				}
 			}
 		} else {
@@ -712,28 +726,11 @@ func (iterator *rIterator) generate() {
 				if !day.Defined {
 					continue
 				}
-				i := day.Int
-				dateYear, dateMonth, dateDay := iterator.ii.firstyday.AddDate(0, 0, i).Date()
-				for _, timeTemp := range iterator.timeset {
-					tempHour, tempMinute, tempSecond := timeTemp.Clock()
-					res := time.Date(dateYear, dateMonth, dateDay,
-						tempHour, tempMinute, tempSecond,
-						timeTemp.Nanosecond(), timeTemp.Location())
-					if !r.until.IsZero() && res.After(r.until) {
-						r.len = iterator.total
-						iterator.finished = true
+				p := iterator.civilDay(day.Int)
+				for _, clock := range iterator.timeset {
+					res, ok := r.civilCandidate(p, nominalClock(clock))
+					if ok && iterator.emit(res) {
 						return
-					} else if !res.Before(r.dtstart) {
-						iterator.total++
-						iterator.remain.Append(res)
-						if iterator.count != 0 {
-							iterator.count--
-							if iterator.count == 0 {
-								r.len = iterator.total
-								iterator.finished = true
-								return
-							}
-						}
 					}
 				}
 			}
@@ -879,6 +876,70 @@ func (iterator *rIterator) generate() {
 	}
 }
 
+// civilDay caches the profile for subdaily candidates without global state.
+func (iterator *rIterator) civilDay(dayIndex int) civilDay {
+	date := time.Date(iterator.year, 1, dayIndex+1, 0, 0, 0, 0, time.UTC)
+	y, m, d := date.Date()
+	if iterator.profile.year != y || iterator.profile.month != m || iterator.profile.day != d {
+		iterator.profile = newCivilDay(y, m, d, iterator.ii.rrule.dtstart.Location())
+	}
+	return iterator.profile
+}
+
+// anchorCollision checks only a clock rank and selected civil day, including
+// when a skipped date resolves onto another day in the same coarse period.
+// It never expands the day-timeset product. Later periods retain their normal
+// ranks; the existing output boundary handles duplicates across periods.
+func (iterator *rIterator) anchorCollision(dayset []optInt) bool {
+	r := iterator.ii.rrule
+	resolved := civilFromTime(r.dtstart)
+	if r.anchor == resolved {
+		return false
+	}
+	clock := resolved.clock()
+	i := sort.Search(len(iterator.timeset), func(i int) bool { return nominalClock(iterator.timeset[i]) >= clock })
+	if i == len(iterator.timeset) || nominalClock(iterator.timeset[i]) != clock {
+		return false
+	}
+	start := time.Date(iterator.year, 1, 1, 0, 0, 0, 0, time.UTC).Unix()
+	date := time.Date(resolved.year, resolved.month, resolved.day, 0, 0, 0, 0, time.UTC).Unix()
+	index := (date - start) / 86400
+	for _, day := range dayset {
+		if day.Defined && int64(day.Int) == index {
+			candidate, valid := iterator.civilDay(day.Int).resolve(clock)
+			return valid && candidate.Equal(r.dtstart)
+		}
+	}
+	return false
+}
+
+// emit counts only unique ascending instants. In particular an explicit gap
+// anchor can resolve after subsequent nominal candidates; those collisions do
+// not consume COUNT or make any query path go backwards.
+func (iterator *rIterator) emit(res time.Time) bool {
+	r := iterator.ii.rrule
+	if res.Before(r.dtstart) || (!iterator.last.IsZero() && !res.After(iterator.last)) {
+		return false
+	}
+	if res.After(r.until) {
+		r.len = iterator.total
+		iterator.finished = true
+		return true
+	}
+	iterator.last = res
+	iterator.total++
+	iterator.remain.Append(res)
+	if iterator.count != 0 {
+		iterator.count--
+		if iterator.count == 0 {
+			r.len = iterator.total
+			iterator.finished = true
+			return true
+		}
+	}
+	return false
+}
+
 // daysRemaining includes any day carry not yet normalized by generate. Use
 // UTC civil dates rather than local elapsed time, so DST does not alter steps.
 // Unix seconds also avoid time.Duration's approximately 292-year limit.
@@ -957,9 +1018,9 @@ func (s *reusingRemainSlice) Pop() (ret time.Time, ok bool) {
 // Iterator return an iterator for RRule
 func (r *RRule) Iterator() Next {
 	iterator := rIterator{}
-	iterator.year, iterator.month, iterator.day = r.dtstart.Date()
-	iterator.hour, iterator.minute, iterator.second = r.dtstart.Clock()
-	iterator.weekday = toPyWeekday(r.dtstart.Weekday())
+	iterator.year, iterator.month, iterator.day = r.anchor.year, r.anchor.month, r.anchor.day
+	iterator.hour, iterator.minute, iterator.second = r.anchor.hour, r.anchor.minute, r.anchor.second
+	iterator.weekday = toPyWeekday(r.anchor.utc().Weekday())
 
 	iterator.ii = iterInfo{rrule: r}
 	iterator.ii.rebuild(iterator.year, iterator.month)
@@ -1015,7 +1076,14 @@ func (r *RRule) After(dt time.Time, inc bool) time.Time {
 // It will be truncated to second precision.
 // Default to `time.Now().UTC().Truncate(time.Second)`.
 func (r *RRule) DTStart(dt time.Time) {
+	r.dtStart(dt, nil)
+}
+
+// dtStart is the internal handoff for a shared parsed DTSTART. Public setters
+// supply nil: their time value is authoritative, even if it equals a snapshot.
+func (r *RRule) dtStart(dt time.Time, parsed *parsedTime) {
 	r.OrigOptions.Dtstart = dt.Truncate(time.Second)
+	r.OrigOptions.setParsedStart(parsed)
 	*r = buildRRule(r.OrigOptions)
 }
 
@@ -1028,6 +1096,7 @@ func (r *RRule) GetDTStart() time.Time {
 // It will be truncated to second precision.
 // Default to `Dtstart.Add(time.Duration(1<<63 - 1))`, approximately 290 years.
 func (r *RRule) Until(ut time.Time) {
+	r.OrigOptions.setParsedUntil(nil)
 	r.OrigOptions.Until = ut.Truncate(time.Second)
 	*r = buildRRule(r.OrigOptions)
 }

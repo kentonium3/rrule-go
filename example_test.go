@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/teambition/rrule-go"
+	"github.com/kentonium3/rrule-go"
 )
 
 func printTimeSlice(ts []time.Time) {

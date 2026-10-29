@@ -206,9 +206,11 @@ func TestUntilGolden(t *testing.T) {
 	}
 }
 
+// Gap rows incorporate RFC5545 section3.3.10: missing local instances are
+// omitted, including midnight gaps (Sao Paulo) and the skipped Apia date.
+// All other inherited UNTIL golden rows remain unchanged.
 const untilBaselineGolden = `{
   "apia": [
-    "2011-12-29T00:00:00-10:00",
     "2011-12-29T00:00:00-10:00"
   ],
   "count-buffer": [
@@ -329,7 +331,6 @@ const untilBaselineGolden = `{
   ],
   "gap": [
     "2026-03-07T02:30:00-05:00",
-    "2026-03-08T01:30:00-05:00",
     "2026-03-09T02:30:00-04:00",
     "2026-03-10T02:30:00-04:00"
   ],
@@ -360,7 +361,6 @@ const untilBaselineGolden = `{
     "2026-01-12T10:00:00Z"
   ],
   "sao-paulo": [
-    "2018-11-03T00:00:00-03:00",
     "2018-11-03T00:00:00-03:00"
   ],
   "year-earlier-month": [
