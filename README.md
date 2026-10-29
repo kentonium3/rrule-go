@@ -1,13 +1,13 @@
 > **This is a maintained fork of [teambition/rrule-go](https://github.com/teambition/rrule-go).**
 > The original project is no longer maintained. This is a modified copy with Go 1.16 support.
-> The v1.9.0 candidate uses module path `github.com/kentonium3/rrule-go`.
+> Version v1.9.0 uses module path `github.com/kentonium3/rrule-go`.
 > Existing callers must change imports, and external positional `ROption` literals must use
 > keyed fields. See [MIGRATION.md](MIGRATION.md) before upgrading.
 >
 > [RFC 5545](https://www.rfc-editor.org/rfc/rfc5545) is the reference for how rules behave. Where
 > the original code or python-dateutil differs from it, this fork follows the RFC.
 
-## Changes in the v1.9.0 candidate
+## Changes in v1.9.0
 
 Generated daylight-saving gap times are skipped before COUNT and BYSETPOS, and
 folds choose the first occurrence. Parsed floating and DATE values retain their
@@ -16,7 +16,7 @@ longer duplicate occurrences. The [changelog](CHANGELOG.md) describes the behavi
 changes and credits, and the [migration guide](MIGRATION.md) covers imports,
 replacements, keyed `ROption` literals and parsing compatibility.
 
-These are candidate changes until the public v1.9.0 tag is published.
+[v1.9.0 is released](https://github.com/kentonium3/rrule-go/releases/tag/v1.9.0).
 
 ## Fixes released in v1.8.3
 
@@ -60,7 +60,7 @@ would like to offer. Small contributions are welcome.
 ## Using it
 
 For v1.9.0, import `github.com/kentonium3/rrule-go` (package name `rrule`).
-Once that public tag is published:
+Install the released version:
 
 ```bash
 go get github.com/kentonium3/rrule-go@v1.9.0
@@ -68,7 +68,7 @@ go mod tidy
 ```
 
 Existing users must follow [MIGRATION.md](MIGRATION.md) before removing old-path
-replacements. Until publication, the released v1.8.3 arrangement remains:
+replacements. Consumers staying on v1.8.3 can retain the older arrangement:
 
 ```bash
 go mod edit -replace github.com/teambition/rrule-go=github.com/kentonium3/rrule-go@v1.8.3
