@@ -1,12 +1,24 @@
 > **This is a maintained fork of [teambition/rrule-go](https://github.com/teambition/rrule-go).**
-> The original project is no longer maintained. This fork keeps the same module path
-> (`github.com/teambition/rrule-go`), the same API and the same Go 1.16 minimum. It adds fixes for
-> inputs the parser accepts but the iterator could not handle.
+> The original project is no longer maintained. This is a modified copy with Go 1.16 support.
+> The v1.9.0 candidate uses module path `github.com/kentonium3/rrule-go`.
+> Existing callers must change imports, and external positional `ROption` literals must use
+> keyed fields. See [MIGRATION.md](MIGRATION.md) before upgrading.
 >
 > [RFC 5545](https://www.rfc-editor.org/rfc/rfc5545) is the reference for how rules behave. Where
 > the original code or python-dateutil differs from it, this fork follows the RFC.
 
-## What this fork fixes (v1.8.3)
+## Changes in the v1.9.0 candidate
+
+Generated daylight-saving gap times are skipped before COUNT and BYSETPOS, and
+folds choose the first occurrence. Parsed floating and DATE values retain their
+forms; explicit DTSTART/UNTIL pairs are validated. Repeated time selectors no
+longer duplicate occurrences. The [changelog](CHANGELOG.md) describes the behavior
+changes and credits, and the [migration guide](MIGRATION.md) covers imports,
+replacements, keyed `ROption` literals and parsing compatibility.
+
+These are candidate changes until the public v1.9.0 tag is published.
+
+## Fixes released in v1.8.3
 
 - **Panics on accepted rules.** BYDAY ordinals outside the month, BYEASTER offsets outside the year,
   and very large INTERVAL values could make the iterator panic with "index out of range". They now
@@ -16,8 +28,8 @@
 - **Long scans with UNTIL (UTC only).** When DTSTART is in UTC, a rule that never matches now stops
   at UNTIL instead of scanning to the year 9999. Other locations behave as before.
 
-Rules that worked before produce the same occurrences. The fixes come with regression tests and a
-fuzz test.
+The v1.8.3 fixes preserve occurrences for rules that worked before that release.
+They come with regression tests and a fuzz test.
 
 See [CHANGELOG.md](CHANGELOG.md) for released and unreleased changes.
 
@@ -47,12 +59,23 @@ would like to offer. Small contributions are welcome.
 
 ## Using it
 
-Keep importing `github.com/teambition/rrule-go` and point the module at this fork:
+For v1.9.0, import `github.com/kentonium3/rrule-go` (package name `rrule`).
+Once that public tag is published:
+
+```bash
+go get github.com/kentonium3/rrule-go@v1.9.0
+go mod tidy
+```
+
+Existing users must follow [MIGRATION.md](MIGRATION.md) before removing old-path
+replacements. Until publication, the released v1.8.3 arrangement remains:
 
 ```bash
 go mod edit -replace github.com/teambition/rrule-go=github.com/kentonium3/rrule-go@v1.8.3
 go mod tidy
 ```
+
+That v1.8.3 arrangement uses imports of `github.com/teambition/rrule-go`.
 
 Report problems in this repository's issues. Licensed under MIT, as the original (© Teambition).
 
@@ -65,7 +88,7 @@ Go library for working with recurrence rules for calendar dates.
 [![CI](https://github.com/kentonium3/rrule-go/actions/workflows/ci.yml/badge.svg)](https://github.com/kentonium3/rrule-go/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/kentonium3/rrule-go/actions/workflows/codeql.yml/badge.svg)](https://github.com/kentonium3/rrule-go/actions/workflows/codeql.yml)
 [![License](https://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https://github.com/kentonium3/rrule-go/blob/main/LICENSE)
-[![Go Reference](https://pkg.go.dev/badge/github.com/teambition/rrule-go.svg)](https://pkg.go.dev/github.com/teambition/rrule-go)
+[![Go Reference](https://pkg.go.dev/badge/github.com/kentonium3/rrule-go.svg)](https://pkg.go.dev/github.com/kentonium3/rrule-go)
 
 The rrule module implements the recurrence rules of the iCalendar standard,
 [RFC 5545](https://www.rfc-editor.org/rfc/rfc5545). It began as a partial port of the rrule module from
@@ -82,7 +105,7 @@ import (
   "fmt"
   "time"
 
-  "github.com/teambition/rrule-go"
+  "github.com/kentonium3/rrule-go"
 )
 
 func printTimeSlice(ts []time.Time) {

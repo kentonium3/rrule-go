@@ -10,10 +10,11 @@ import (
 
 // Set allows more complex recurrence setups, mixing multiple rules, dates, exclusion rules, and exclusion dates
 type Set struct {
-	dtstart time.Time
-	rrule   *RRule
-	rdate   []time.Time
-	exdate  []time.Time
+	dtstart     time.Time
+	parsedStart *parsedTime
+	rrule       *RRule
+	rdate       []time.Time
+	exdate      []time.Time
 }
 
 // Recurrence returns a slice of all the recurrence rules for a set
@@ -22,7 +23,7 @@ func (set *Set) Recurrence() []string {
 
 	if !set.dtstart.IsZero() {
 		// No colon, DTSTART may have TZID, which would require a semicolon after DTSTART
-		res = append(res, fmt.Sprintf("DTSTART%s", timeToRFCDatetimeStr(set.dtstart)))
+		res = append(res, fmt.Sprintf("DTSTART%s", parsedStartString(set.dtstart, set.parsedStart)))
 	}
 
 	if set.rrule != nil {
@@ -42,10 +43,16 @@ func (set *Set) Recurrence() []string {
 // DTStart sets dtstart property for set.
 // It will be truncated to second precision.
 func (set *Set) DTStart(dtstart time.Time) {
-	set.dtstart = dtstart.Truncate(time.Second)
+	set.dtStart(dtstart, nil)
+}
 
+// dtStart transports an immutable parsed anchor internally. Public DTStart
+// deliberately replaces its lexical/nominal semantics with the supplied time.
+func (set *Set) dtStart(dtstart time.Time, parsed *parsedTime) {
+	set.dtstart = dtstart.Truncate(time.Second)
+	set.parsedStart = parsed
 	if set.rrule != nil {
-		set.rrule.DTStart(set.dtstart)
+		set.rrule.dtStart(set.dtstart, parsed)
 	}
 }
 
@@ -59,8 +66,9 @@ func (set *Set) GetDTStart() time.Time {
 func (set *Set) RRule(rrule *RRule) {
 	if !rrule.OrigOptions.Dtstart.IsZero() {
 		set.dtstart = rrule.dtstart
+		set.parsedStart = rrule.OrigOptions.parsedStart()
 	} else if !set.dtstart.IsZero() {
-		rrule.DTStart(set.dtstart)
+		rrule.dtStart(set.dtstart, set.parsedStart)
 	}
 	set.rrule = rrule
 }

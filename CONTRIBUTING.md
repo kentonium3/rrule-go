@@ -14,8 +14,11 @@ Security problems (panics, hangs, runaway resource use) go through private repor
 
 ## Changing the code
 
-- Keep the module path (`github.com/teambition/rrule-go`), the public API and the Go 1.16 minimum.
-  Changes that would break existing callers need an issue first.
+- Keep the module path (`github.com/kentonium3/rrule-go`), exported signatures and keyed
+  callers compatible, and preserve the Go 1.16 minimum. The v1.9.0 migration changes
+  the old module path and requires keyed external `ROption` literals; see
+  [MIGRATION.md](MIGRATION.md). Further changes that would break existing callers
+  need an issue first.
 - Add a test that fails before your change and passes after it.
 - Before opening a pull request, run:
 
