@@ -1,10 +1,9 @@
 # Migrating to the new module path
 
-The candidate v1.9.0 changes the module from `github.com/teambition/rrule-go` to
+Version v1.9.0 changes the module from `github.com/teambition/rrule-go` to
 `github.com/kentonium3/rrule-go`. The package name remains `rrule`. The steps below
-prepare consumers for that release; this document does not establish that the
-public v1.9.0 tag exists or can be downloaded. Existing immutable releases remain
-available to consumers pinned to them.
+apply to the [published v1.9.0 release](https://github.com/kentonium3/rrule-go/releases/tag/v1.9.0).
+Existing immutable releases remain available to consumers pinned to them.
 
 ## Check dependencies before changing replacements
 
@@ -51,7 +50,7 @@ below; the two replacement-removal commands are alternatives.
 ### Direct upstream dependency without a replacement
 
 Change the imports and omit the replacement-removal step. Continue with
-[install and test](#install-and-test-after-public-release).
+[install and test](#install-and-test).
 
 ### Replacement applying to all old-module versions
 
@@ -85,9 +84,9 @@ go mod edit -dropreplace=github.com/teambition/rrule-go@v1.8.2
 
 Then continue with install and test.
 
-## Install and test after public release
+## Install and test
 
-Run these commands only once v1.9.0 is actually published:
+Install v1.9.0 and verify your application:
 
 ```sh
 go get github.com/kentonium3/rrule-go@v1.9.0
@@ -102,7 +101,7 @@ subject to the protective-fix preflight above.
 
 ## Separate ROption literal migration
 
-The candidate v1.9.0 also inherits an independent compatibility change:
+Version v1.9.0 also includes an independent compatibility change:
 unexported parse metadata makes external positional `ROption` literals invalid.
 Convert them to keyed literals, for example:
 
