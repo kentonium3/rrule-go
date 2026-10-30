@@ -7,6 +7,12 @@ are not yet tagged. Future intentions belong in [ROADMAP.md](ROADMAP.md).
 
 ## [Unreleased]
 
+### Added
+
+- **Task-oriented documentation covers usage, time zones, design and limitations.**
+  The [documentation index](docs/README.md) links the guides. Long README examples
+  moved into the usage guide; root migration and release-history links remain stable.
+
 ## [1.9.0] - 2026-10-29
 
 ### Breaking
