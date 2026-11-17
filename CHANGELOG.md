@@ -9,6 +9,10 @@ are not yet tagged. Future intentions belong in [ROADMAP.md](ROADMAP.md).
 
 ### Added
 
+- **Security reports can also be sent by email.** [SECURITY.md](SECURITY.md) lists
+  rrule-go-security@intentional.biz for reporters who can't use GitHub's private
+  reporting, and now names v1.9.x as the supported release.
+
 - **Task-oriented documentation covers usage, time zones, design and limitations.**
   The [documentation index](docs/README.md) links the guides. Long README examples
   moved into the usage guide; root migration and release-history links remain stable.
