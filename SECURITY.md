@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Fixes go into the latest v1.8.x release. Older releases do not get backports.
+Fixes go into the latest release, currently v1.9.x. Older releases do not get backports.
 
 ## What to report privately
 
@@ -18,6 +18,8 @@ Wrong occurrences without a crash or hang are ordinary bugs. Open a normal issue
 
 Use GitHub's private reporting:
 [Report a vulnerability](https://github.com/kentonium3/rrule-go/security/advisories/new).
+
+If you can't use GitHub, email rrule-go-security@intentional.biz instead.
 
 Include the rule, the DTSTART and its time zone, the library and Go versions, and what happened.
 
